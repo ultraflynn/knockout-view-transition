@@ -3,13 +3,20 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON("package.json"),
 
     watch: {
-      grunt: {
-        files: ["Gruntfile.js"]
+      unit: {
+        files: [
+          "index.js", "lib/*.js", "lib/knockout-view-transition/*.js",
+          "spec/**/*.js"
+        ],
+        tasks: ["jasmine_node"]
       },
 
-      jasmine: {
-        files: ["index.js", "lib/**/*.js", "spec/**/*.js", "features/*.features", "features/step_definitions/*.js"],
-        tasks: ["jasmine_node", "cucumberjs"]
+      acceptance: {
+        files: [
+          "index.js", "lib/*.js", "lib/knockout-view-transition/*.js",
+          "spec/**/*.js", "features/*.feature", "features/step_definitions/*.js"
+        ],
+        tasks: ["cucumberjs"]
       }
     },
 
@@ -40,7 +47,8 @@ module.exports = function(grunt) {
 
   require("matchdep").filterDev(["grunt-*", "!grunt-cli"]).forEach(grunt.loadNpmTasks);
 
-  grunt.registerTask("default", ["watch"]);
-  grunt.registerTask("test", ["jasmine_node"]);
-  grunt.registerTask("acceptance", ["cucumberjs"]);
+  grunt.registerTask("default", ["unit"]);
+  grunt.registerTask("unit", ["watch:unit"]);
+  grunt.registerTask("acceptance", ["watch:acceptance"]);
+  grunt.registerTask("test", ["jasmine_node", "cucumberjs"]);
 };
