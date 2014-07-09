@@ -48,6 +48,7 @@ module.exports = function(grunt) {
   require("matchdep").filterDev(["grunt-*", "!grunt-cli"]).forEach(grunt.loadNpmTasks);
 
   grunt.registerTask("default", ["unit"]);
+  grunt.registerTask("test", ["jasmine_node", "cucumberjs"]);
   grunt.registerTask("unit", ["watch:unit"]);
   grunt.registerTask("acceptance", ["watch:acceptance"]);
   grunt.registerTask("test", ["jasmine_node", "cucumberjs"]);

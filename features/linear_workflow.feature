@@ -18,10 +18,10 @@ Feature: Allow views to be configured which flow linearly
     """
     When transition is started using "viewOne" as the starting view
     Then template should be set to "viewOne"
-    And model should be set to "viewOne"
+    And model for "viewOne" should be active
 
   Scenario: Transition from one view to another
- ;   Given a view called "viewOne" which transitions to "viewTwo":
+    Given a view called "viewOne" which transitions to "viewTwo":
     """
     model: {
       field_one: "Field One",
@@ -37,6 +37,8 @@ Feature: Allow views to be configured which flow linearly
     }
     """
     When transition is started using "viewOne" as the starting view
-    And transition is requested to "viewTwo"
-    Then template should be set to "viewTwo"
-    And model should be set to "viewTwo"
+    Then template should be set to "viewOne"
+    And model for "viewOne" should be active
+    Then transition is requested to "viewTwo"
+    And template should be set to "viewTwo"
+    And model for "viewTwo" should be active
