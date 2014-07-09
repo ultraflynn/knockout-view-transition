@@ -1,6 +1,6 @@
 {
   "name": "knockout-view-transition",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "State transition management for knockout.js views",
   "main": "index.js",
   "scripts": {
