@@ -11,9 +11,11 @@
   ],
   "author": "Matt Biggin",
   "license": "BSD-2-Clause",
+
   "dependencies": {
-    "knockout": "~3.1.0"
+    "knockout": "~3.0.0"
   },
+
   "devDependencies": {
     "grunt-cli": "~0.1.13",
     "matchdep": "~0.3.0",

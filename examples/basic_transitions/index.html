@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<head>
+  <title>knockout-view-transition: Basic Transitions</title>
+</head>
+<body>
+  
+  <script type="text/html" id="view1">
+    <h1>Haste</h1>
+    <div data-bind="text:haste"></div>
+    <input type="button" value="Show second attribute" data-bind="click: nextView"/>
+  </script>
+  
+  <script type="text/html" id="view2">
+    <h1>Armor Pierce</h1>
+    <div data-bind="text:armorPierce"></div>
+    <input type="button" value="Show last attribute" data-bind="click: nextView"/>
+  </script>
+  
+  <script type="text/html" id="view3">
+    <h1>Resilience</h1>
+    <div data-bind="text:resilience"></div>
+    <input type="button" value="Back to the first attribute" data-bind="click: firstView"/>
+  </script>
+  
+  <div data-bind='template: { name: view.template, data: view.model }'></div>
+  
+  <script src="./dist/transition.js"></script>
+  
+  <script>
+  transition.initConfig({
+    view1: {
+      model: {
+        haste: "All class ability cooldowns are reduced by this percent.",
+        nextView: function () {
+          transition.toView("view2");
+        }
+      }
+    },
+
+    view2: {
+      model: {
+        armorPierce: "All damage you deal ignores this percent of your target's Armor.",
+        nextView: function () {
+          transition.toView("view3");
+        }
+      }
+    },
+
+    view3: {
+      model: {
+        resilience: "All crowd control effects applied to you will be reduced by this percent.",
+        firstView: function () {
+          transition.toView("view1");
+        }
+      }
+    }
+  });
+
+  transition.start("view1");
+  </script>
+
+</body>
+</html>
