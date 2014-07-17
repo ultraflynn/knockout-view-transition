@@ -42,6 +42,15 @@ module.exports = function(grunt) {
       options: {
         steps: "features/step_definitions"
       }
+    },
+
+    browserify: {
+      package: {
+        src: ["./lib/**/*.js"],
+        dest: "./examples/basic_transitions/dist/transition.js",
+        options: {
+        }
+      }
     }
   });
 
@@ -52,4 +61,5 @@ module.exports = function(grunt) {
   grunt.registerTask("unit", ["watch:unit"]);
   grunt.registerTask("acceptance", ["watch:acceptance"]);
   grunt.registerTask("test", ["jasmine_node", "cucumberjs"]);
+  grunt.registerTask("examples", ["browserify"]);
 };

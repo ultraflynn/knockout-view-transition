@@ -1,6 +1,6 @@
 {
   "name": "knockout-view-transition",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "State transition management for knockout.js views",
   "main": "lib/transition.js",
   "scripts": {
@@ -11,9 +11,7 @@
   ],
   "author": "Matt Biggin",
   "license": "BSD-2-Clause",
-  "dependencies": {
-    "knockout": "~3.1.0"
-  },
+
   "devDependencies": {
     "grunt-cli": "~0.1.13",
     "matchdep": "~0.3.0",
