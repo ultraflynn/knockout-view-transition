@@ -1,13 +1,9 @@
 knockout-view-transition
 ========================
 
-I wanted to be able to use Knockout.js for a big single page app and I didn't want
-to end up with one massive index.html and a single equally large view model. What
-I wanted to do is to split up things into logical views so that I can work on
-them separately.
+I wanted to be able to use Knockout.js for a big single page app and I didn't want to end up with one massive index.html and a single equally large view model. What I wanted to do is to split up things into logical views so that I can work on them separately.
 
-What would be nice would be to seperate different logical groups of HTML.
-Something like this:
+What would be nice would be to seperate different logical groups of HTML. Something like this:
 ```
 <script type="text/html" id="home">
   <p data-bind="text: surname"></p>
@@ -24,51 +20,91 @@ Something like this:
 <script src="js/knockout.js/knockout.debug.js"></script>
 <script src="js/app.js"></script>
 ```
-In a full-scale application I wouldn't put these all in the same html page,
-I'd put each of these groups into a file on it's own and then import them into the
-main html page at build time. A tool like grunt-copy might be useful for that.
+In a full-scale application I wouldn't put these all in the same html page, I'd put each of these groups into a file on it's own and then import them into the main html page at build time. A tool like grunt-copy might be useful for that.
 
-Now that I have my html seperated I want to give each of those groups a different
-view model. I don't want one huge view model, no, a view model for each group would
-be fine:
+Now that I have my html seperated I want to give each of those groups a different view model. I don't want one huge view model, no, a view model for each group would be fine:
 ```
-(function (transition) {
-    transition.initConfig({
-      home: {
-        model: {
-          surname: "",
-          loginUser: function () {
-            transition.toView("login");
-          }
-        }
-      },
-      login: {
-        model: {
-          forename: "View Model Two - FORENAME",
-          displayHome: function () {
-            transition.toView("home");
-          }
-        }
+var transition = require("knockout-view-transition");
+transition.initConfig({
+  home: {
+    model: {
+      surname: "",
+      loginUser: function () {
+        transition.toView("login");
       }
-    });
+    }
+  },
 
-    transition.start("viewOne");
-  })(new KnockoutViewTransition());
+  login: {
+    model: {
+      forename: "View Model Two - FORENAME",
+      displayHome: function () {
+        transition.toView("home");
+      }
+    }
+  }
+});
+
+transition.start("viewOne");
 ```
+So the most basic requirement for knockout-view-transition is that it can handle this modularisation for me. Let's call the combination of a group of html elements and their associated view model something simple. How about a "view"? Yup. That'll do.
 
-So the most basic requirement for knockout-view-transition is that it can handle
-this modularisation for me. Let's call the combination of a group of html elements
-and their associated view model something simple. How about a "view"? Yup. That'll
-do.
+So the other most basic requirement is to be able to transition from one view to another.
 
-So the other most basic requirement is to be able to transition from one view to
-another.
+View Transitions
+----------------
+knockout-view-transition provides a method named 'toView' which allows a transition to another view. This function has this signature:
+'''
+transition.toView = function(view, allowed, denied) {
+  ...
+}
+'''
+The parameters to this function do the following:
+* "view" - this is the view being transitioned to it contains a string that is the view name defined in the configuration. In the example above the view names are "home" and "login".
+* "allowed" - called when both the "leaving" and "entering" transition hooks have allowed the transition.
+* "denied" - called when either the "leaving" or "entering" transition hooks have denied the transition. This function has one parameter named "reason" which is provided by the transition hook that issued the denial.
 
+Transition Hooks
+----------------
+Often you want something to happen during the transition period between views. Maybe you want to trigger a UI framework refresh each time so that the front-end is rendered correctly when the model changes.
+
+knockout-view-transition supports the follow transition hooks:
+* "leaving" - a transition has been triggered and the view is about to be "left". Two callbacks are defined, "allow" and "deny" which takes an optional argument named "reason" to provide context for the denial.
+* "left" - a transition has been triggered, the "leaving" hook has allowed it and the view is about to be changed.
+* "entering" - a view is about to be transitioned to. Two callbacks are defined, "allow" and "deny" which takes an optional argument named "reason" to provide context for the denial.
+* "entered" - a view is being transition to and the "entering" hook has allowed it.
+
+The hooks are defined to the configuration like this:
+```
+transition.initConfig({
+  home: {
+    model: { ... },
+
+    leaving: function(deny) {
+      deny("reason");
+    },
+
+    left: function() {
+    }
+  },
+
+  login: {
+    model: { ... },
+
+    entering: function(deny) {
+      deny("reason");
+    },
+
+    entered: function() {
+    }
+  }
+});
+```
+"leaving" and "entering" both are provided with a callback which allows them to deny the transition. This "deny" callback takes a parameter called "context" which is handed to the "denied" callback provided to the 'toView' invocation. Should the "deny" callback not be called then the transition is permitted.
+
+Backlog
+-------
 There are a bunch of other things I think I'm going to need and I'll build into
 knockout-view-transition. Here's my current list:
-* Validation to ensure that a transition can happen
-* Rules that determine whether a transition can happen
-* Hooks to allow you to run code before transition, after a successful rule,
-  after an unsuccessful rule and after a transition
 * Allow transitions to more than one view
 * Linear workflows so that just "next" and "previous" are required

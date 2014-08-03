@@ -63,7 +63,7 @@ Knockout.prototype.observableArray = function (initialValue) {
 
   return observableArray;
 };
-
+  
 Knockout.prototype.utils = {
   arrayFilter: function (collection, filter) {
     var filtered = [];
@@ -90,11 +90,9 @@ Knockout.prototype.getViewModel = function() {
 Knockout.prototype.assertObservableCount = function(expected) {
   return this.observableCount === expected;
 };
-Knockout.prototype.assertTemplate = function(message, expected) {
-  return this.viewModel.view.template() === expected ?
-    undefined : message + ": " + this.viewModel.view.template();
+Knockout.prototype.template = function() {
+  return this.viewModel.view.template();
 };
-Knockout.prototype.assertModel = function(message, expected) {
-  return this.viewModel.view.model() === expected ?
-    undefined : message + ": " + this.viewModel.view.model();
+Knockout.prototype.model = function() {
+    return this.viewModel.view.model();
 };

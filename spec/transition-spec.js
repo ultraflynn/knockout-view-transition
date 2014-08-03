@@ -1,11 +1,22 @@
 var Knockout = require("./knockout-view-transition/fake-knockout.js");
-var ko = new Knockout();
+var Transition = require("../lib/transition");
 
 describe("transition-spec.js", function() {
-  var transition, viewModel = null;
+  var ko, transition, viewModel = null, lastDeniedReason = null;
+  var modelOne = {
+      firstDataItem: "value"
+    },
+    modelTwo = {
+      secondDataItem: "another-value"
+    },
+    modelThree = {
+      thirdDataItem: "yet-another-value"
+    };
 
   beforeEach(function() {
-    transition = require("../lib/transition").using(ko);
+    ko = new Knockout();
+    transition = Transition.using(ko);
+    lastDeniedReason = null;
   });
 
   it("should bind a view model to knockout and start the first view", function() {
@@ -18,29 +29,216 @@ describe("transition-spec.js", function() {
       }
     });
     transition.start("viewName");
-    ko.assertTemplate("viewName");
-    ko.assertModel(model);
+
+    expect(ko.template("viewName")).toBe("viewName");
+    expect(ko.model()).toBe(model);
   });
 
-  it("should allow a transition to a second view", function() {
-    var modelOne = {
-      dataItem: "value"
-    };
-    var modelTwo = {
-      aDifferentDataItem: "another-value"
-    };
-    transition.initConfig({
-      viewOne: {
+  it("should allow a transition to a second view when no leaving trigger", function() {
+    transitionWithLeaving(null, function(ko) {
+      expect(ko.template()).toBe("viewTwo");
+      expect(ko.model()).toBe(modelTwo);
+    });
+  });
+
+  it("should transition to next view when leaving trigger allows", function() {
+    transitionWithLeaving(function(allow, deny) {
+      allow();
+    }, function(ko) {
+      expect(ko.template()).toBe("viewTwo");
+      expect(ko.model()).toBe(modelTwo);
+    });
+  });
+
+  it("should not transition to next view when leaving fails to trigger any callbacks", function() {
+    transitionWithLeaving(function(allow, deny) {}, function(ko) {
+      expect(ko.template()).toBe("viewOne");
+      expect(ko.model()).toBe(modelOne);
+    });
+  });
+
+  it("should not transition to next view when leaving callback denies", function() {
+    transitionWithLeaving(function(allow, deny) {
+      deny();
+    }, function(ko) {
+      expect(ko.template()).toBe("viewOne");
+      expect(ko.model()).toBe(modelOne);
+    });
+  });
+
+  it("should not transition to next view when leaving callback denies with a reason", function() {
+    transitionWithLeaving(function(allow, deny) {
+      deny("a-reason");
+    }, function(ko) {
+      expect(ko.template()).toBe("viewOne");
+      expect(ko.model()).toBe(modelOne);
+      expect(lastDeniedReason).toBe("a-reason");
+    });
+  });
+
+  var transitionWithLeaving = function(leaving, assertion) {
+    var viewOne;
+    if (leaving) {
+      viewOne = {
+        model: modelOne,
+
+        leaving: leaving
+      };
+    } else {
+      viewOne = {
         model: modelOne
-      },
+      };
+    }
+
+    transition.initConfig({
+      viewOne: viewOne,
+
       viewTwo: {
         model: modelTwo
       }
     });
     transition.start("viewOne");
+    transition.toView("viewTwo", function() {}, function(reason) {
+      lastDeniedReason = reason;
+    });
+
+    assertion(ko);
+  };
+
+  it("should trigger the left callback when transitioning out of a view", function() {
+    var viewOneLeftCalled = false, viewTwoLeftCalled = false, viewThreeLeftCalled = false ;
+    transition.initConfig({
+      viewOne: {
+        model: modelOne,
+
+        left: function() {
+          viewOneLeftCalled = true;
+        }
+      },
+
+      viewTwo: {
+        model: modelTwo,
+
+        left: function() {
+          viewTwoLeftCalled = true;
+        }
+      },
+
+      viewThree: {
+        model: modelThree,
+
+        left: function() {
+          viewThreeLeftCalled = true;
+        }
+      }
+    });
+    transition.start("viewOne");
     transition.toView("viewTwo");
 
-    ko.assertTemplate("viewTwo");
-    ko.assertModel(modelTwo);
+    expect(viewOneLeftCalled).toBe(true);
+    expect(viewTwoLeftCalled).toBe(false);
+    expect(viewThreeLeftCalled).toBe(false);
   });
+
+  it("should trigger the entered callback when transitioning into a view", function() {
+    var viewOneEnteredCalled = false, viewTwoEnteredCalled = false, viewThreeEnteredCalled = false;
+    transition.initConfig({
+      viewOne: {
+        model: modelOne,
+
+        entered: function() {
+          viewOneEnteredCalled = true;
+        }
+      },
+
+      viewTwo: {
+        model: modelTwo,
+
+        entered: function() {
+          viewTwoEnteredCalled = true;
+        }
+      },
+
+      viewThree: {
+        model: modelThree,
+
+        entered: function() {
+          viewThreeEnteredCalled = true;
+        }
+      }
+    });
+    transition.start("viewOne");
+    transition.toView("viewTwo");
+
+    expect(viewOneEnteredCalled).toBe(true);
+    expect(viewTwoEnteredCalled).toBe(true);
+    expect(viewThreeEnteredCalled).toBe(false);
+  });
+
+  it("should allow a transition to a second view when no entering trigger", function() {
+    transitionWithEntering(null, function(ko) {
+      expect(ko.template()).toBe("viewTwo");
+      expect(ko.model()).toBe(modelTwo);
+    });
+  });
+  it("should transition to next view when entering trigger allows", function() {
+    transitionWithEntering(function(allow, deny) {
+      allow();
+    }, function(ko) {
+      expect(ko.template()).toBe("viewTwo");
+      expect(ko.model()).toBe(modelTwo);
+    });
+  });
+  it("should not transition to next view when entering fails to trigger any callbacks", function() {
+    transitionWithEntering(function(allow, deny) {}, function(ko) {
+      expect(ko.template()).toBe("viewOne");
+      expect(ko.model()).toBe(modelOne);
+    });
+  });
+  it("should not transition to next view when entering callback denies", function() {
+    transitionWithEntering(function(allow, deny) {
+      deny();
+    }, function(ko) {
+      expect(ko.template()).toBe("viewOne");
+      expect(ko.model()).toBe(modelOne);
+    });
+  });
+  it("should not transition to next view when entering callback denies with a reason", function() {
+    transitionWithEntering(function(allow, deny) {
+      deny("a-reason");
+    }, function(ko) {
+      expect(ko.template()).toBe("viewOne");
+      expect(ko.model()).toBe(modelOne);
+      expect(lastDeniedReason).toBe("a-reason");
+    });
+  });
+
+  var transitionWithEntering = function(entering, assertion) {
+    var viewTwo;
+    if (entering) {
+      viewTwo = {
+        model: modelTwo,
+
+        entering: entering
+      };
+    } else {
+      viewTwo = {
+        model: modelTwo
+      };
+    }
+
+    transition.initConfig({
+      viewOne: {
+        model: modelOne
+      },
+
+      viewTwo: viewTwo
+    });
+    transition.start("viewOne");
+    transition.toView("viewTwo", function() {}, function(reason) {
+      lastDeniedReason = reason;
+    });
+
+    assertion(ko);
+  };
 });

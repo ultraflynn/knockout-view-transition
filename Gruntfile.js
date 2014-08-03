@@ -60,6 +60,5 @@ module.exports = function(grunt) {
   grunt.registerTask("test", ["jasmine_node", "cucumberjs"]);
   grunt.registerTask("unit", ["watch:unit"]);
   grunt.registerTask("acceptance", ["watch:acceptance"]);
-  grunt.registerTask("test", ["jasmine_node", "cucumberjs"]);
   grunt.registerTask("examples", ["browserify"]);
 };
