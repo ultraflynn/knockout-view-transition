@@ -102,9 +102,14 @@ transition.initConfig({
 ```
 "leaving" and "entering" both are provided with a callback which allows them to deny the transition. This "deny" callback takes a parameter called "context" which is handed to the "denied" callback provided to the 'toView' invocation. Should the "deny" callback not be called then the transition is permitted.
 
+Knockout.js Version
+-------------------
+At the moment knockout-view-transition is only compatible with Knockout.js 3.0.0, changes to 3.1.0 stop the switching of views from working.
+
 Backlog
 -------
 There are a bunch of other things I think I'm going to need and I'll build into
 knockout-view-transition. Here's my current list:
 * Allow transitions to more than one view
 * Linear workflows so that just "next" and "previous" are required
+* Support knockout 3.1.0
