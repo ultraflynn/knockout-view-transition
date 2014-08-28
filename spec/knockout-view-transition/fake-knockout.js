@@ -1,6 +1,6 @@
 function Knockout() {
-  if (!(this instanceof arguments.callee)) {
-    return new arguments.callee();
+  if (!(this instanceof Knockout)) {
+    return new Knockout();
   }
   this.observableCount = 0;
   this.viewModel = null;
