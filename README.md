@@ -57,7 +57,7 @@ knockout-view-transition provides a method named 'toView' which allows a transit
 '''
 transition.toView = function(view,
     {
-      "allowed": function(data) {
+      "allowed": function() {
       },
       
       "denied": function() {
@@ -81,7 +81,7 @@ knockout-view-transition supports the follow transition hooks:
 * "leaving" - a transition has been triggered and the view is about to be "left". Two callbacks are defined, "allow" and "deny" which takes an optional argument named "reason" to provide context for the denial.
 * "left" - a transition has been triggered, the "leaving" hook has allowed it and the view is about to be changed.
 * "entering" - a view is about to be transitioned to. Two callbacks are defined, "allow" and "deny" which takes an optional argument named "reason" to provide context for the denial.
-* "entered" - a view is being transition to and the "entering" hook has allowed it.
+* "entered" - a view is being transition to and the "entering" hook has allowed it. Should the toView() have been given "data" it will be passed to this hook.
 
 The hooks are defined to the configuration like this:
 ```
@@ -104,7 +104,7 @@ transition.initConfig({
       deny("reason");
     },
 
-    entered: function() {
+    entered: function(data) {
     }
   }
 });
@@ -130,6 +130,7 @@ knockout-view-transition. Here's my current list:
 
 History
 -------
-0.1.0 Initial release
-0.2.0 Transition hooks
-0.3.0 Transition data
+* 0.1.0 Initial release
+* 0.2.0 Transition hooks
+* 0.3.0 Transition data
+* 0.3.1 Move data publication from allowed hook to entered hook
