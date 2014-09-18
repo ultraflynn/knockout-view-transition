@@ -3,7 +3,7 @@ var ko = new Knockout();
 var Transition = require("../../lib/transition");
 
 var workflow = function workflow() {
-  var config, activeModel, calls, allowCallCount, denyCallCount, lastDenyReason, lastAllowedData,
+  var config, activeModel, calls, allowCallCount, denyCallCount, lastDenyReason, lastEnteredData,
       transition;
 
   var reset = function() {
@@ -13,7 +13,7 @@ var workflow = function workflow() {
     allowCallCount = 0;
     denyCallCount = 0;
     lastDenyReason = "";
-    lastAllowedData = "";
+    lastEnteredData = "";
     transition = Transition.using(ko);
   };
 
@@ -28,7 +28,7 @@ var workflow = function workflow() {
   };
   var hooks = {
     "viewOne": {
-      "allowed-leaving": function(allow, deny) {
+      "allowed-leaving": function(allow) {
         calls.push("leaving");
         allow();
       },
@@ -49,7 +49,7 @@ var workflow = function workflow() {
     },
 
     "viewTwo": {
-      "allowed-entering": function(allow, deny) {
+      "allowed-entering": function(allow) {
         calls.push("entering");
         allow();
       },
@@ -64,8 +64,9 @@ var workflow = function workflow() {
         deny("denied-entering-reason");
       },
 
-      "entered-notification": function() {
+      "entered-notification": function(data) {
         calls.push("entered");
+        lastEnteredData = data;
       }
     }
   };
@@ -100,10 +101,9 @@ var workflow = function workflow() {
 
   this.Given(/^a view transition is requested to "(.*)"$/, function(view, cb) {
     transition.toView(view, {
-      "allowed": function(data) {
+      "allowed": function() {
         allowCallCount++;
         activeModel[view] = models[view];
-        lastAllowedData = data;
       },
       "denied": function(reason) {
         denyCallCount++;
@@ -115,10 +115,9 @@ var workflow = function workflow() {
 
   this.Then(/^a view transition is requested to "([^"]*)" passing "([^"]*)"$/, function(view, data, cb) {
     transition.toView(view, {
-      "allowed": function(data) {
+      "allowed": function() {
         allowCallCount++;
         activeModel[view] = models[view];
-        lastAllowedData = data;
       },
       "denied": function(reason) {
         denyCallCount++;
@@ -148,7 +147,7 @@ var workflow = function workflow() {
   });
 
   this.Then(/^"([^"]*)" should have received "([^"]*)" during the transition$/, function(view, data, cb) {
-    verify(cb, lastAllowedData === data, "Expected allowing callback data to be " + data + " but got [" + lastAllowedData + "]");
+    verify(cb, lastEnteredData === data, "Expected allowing callback data to be " + data + " but got [" + lastEnteredData + "]");
   });
 
   this.Then(/^allow callback on toView should have been called "([^"]*)" times$/, function(expected, cb) {

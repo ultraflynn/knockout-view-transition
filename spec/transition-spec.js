@@ -253,13 +253,17 @@ describe("transition-spec.js", function() {
   });
 
   describe("ensure data is passed on transition to different view", function() {
-    var config = {
+    var expectedEnteredData = null, config = {
       viewOne: {
         model: modelOne
       },
 
       viewTwo: {
-        model: modelTwo
+        model: modelTwo,
+
+        entered: function(data) {
+          expect(data).toBe(expectedEnteredData);
+        }
       }
     };
 
@@ -269,9 +273,9 @@ describe("transition-spec.js", function() {
     });
 
     it("should provide function data when transition is allowed", function() {
+      expectedEnteredData = "transition-data-from-function";
       transition.toView("viewTwo", {
-        "allowed": function(data) {
-          expect(data).toBe("transition-data-from-function");
+        "allowed": function() {
         },
 
         "denied": function() {
@@ -285,9 +289,9 @@ describe("transition-spec.js", function() {
     });
 
     it("should provide object data when transition is allowed", function() {
+      expectedEnteredData = "transition-data-from-object";
       transition.toView("viewTwo", {
-        "allowed": function(data) {
-          expect(data).toBe("transition-data-from-object");
+        "allowed": function() {
         },
 
         "denied": function() {
