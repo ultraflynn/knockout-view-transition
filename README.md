@@ -127,3 +127,9 @@ knockout-view-transition. Here's my current list:
 * Allow transitions to more than one view
 * Linear workflows so that just "next" and "previous" are required
 * Support knockout 3.2.0 and modify to use new modularisation features
+
+History
+-------
+0.1.0 Initial release
+0.2.0 Transition hooks
+0.3.0 Transition data
