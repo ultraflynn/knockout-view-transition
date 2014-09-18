@@ -3,7 +3,8 @@ var ko = new Knockout();
 var Transition = require("../../lib/transition");
 
 var workflow = function workflow() {
-  var config, activeModel, calls, allowCallCount, denyCallCount, lastDenyReason;
+  var config, activeModel, calls, allowCallCount, denyCallCount, lastDenyReason, lastAllowedData,
+      transition;
 
   var reset = function() {
     config = {};
@@ -12,6 +13,7 @@ var workflow = function workflow() {
     allowCallCount = 0;
     denyCallCount = 0;
     lastDenyReason = "";
+    lastAllowedData = "";
     transition = Transition.using(ko);
   };
 
@@ -96,17 +98,36 @@ var workflow = function workflow() {
     cb();
   });
 
-  this.Given(/^a view transition is requested to "(.*)"/, function(view, cb) {
-    transition.toView(view,
-      function() {
+  this.Given(/^a view transition is requested to "(.*)"$/, function(view, cb) {
+    transition.toView(view, {
+      "allowed": function(data) {
         allowCallCount++;
         activeModel[view] = models[view];
+        lastAllowedData = data;
       },
-
-      function(reason) {
+      "denied": function(reason) {
         denyCallCount++;
         lastDenyReason = reason;
-      });
+      }});
+
+    cb();
+  });
+
+  this.Then(/^a view transition is requested to "([^"]*)" passing "([^"]*)"$/, function(view, data, cb) {
+    transition.toView(view, {
+      "allowed": function(data) {
+        allowCallCount++;
+        activeModel[view] = models[view];
+        lastAllowedData = data;
+      },
+      "denied": function(reason) {
+        denyCallCount++;
+        lastDenyReason = reason;
+      },
+      "data": function() {
+        return data;
+      }});
+
     cb();
   });
 
@@ -126,14 +147,18 @@ var workflow = function workflow() {
     }
   });
 
+  this.Then(/^"([^"]*)" should have received "([^"]*)" during the transition$/, function(view, data, cb) {
+    verify(cb, lastAllowedData === data, "Expected allowing callback data to be " + data + " but got [" + lastAllowedData + "]");
+  });
+
   this.Then(/^allow callback on toView should have been called "([^"]*)" times$/, function(expected, cb) {
     verify(cb, "" + allowCallCount === expected,
-      "allow callback on toView should have been called " + expected + " times. Actually was called " + allowCallCount + " times");
+            "allow callback on toView should have been called " + expected + " times. Actually was called " + allowCallCount + " times");
   });
 
   this.Then(/^denied callback on toView should have been called "([^"]*)" times$/, function(expected, cb) {
     verify(cb, "" + denyCallCount === expected,
-      "denied callback on toView should have been called " + expected + " times. Actually was called " + allowCallCount + " times");
+            "denied callback on toView should have been called " + expected + " times. Actually was called " + allowCallCount + " times");
   });
 
   this.Then(/^calls should include "([^"]*)"$/, function(expected, cb) {

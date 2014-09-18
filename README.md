@@ -55,9 +55,18 @@ View Transitions
 ----------------
 knockout-view-transition provides a method named 'toView' which allows a transition to another view. This function has this signature:
 '''
-transition.toView = function(view, allowed, denied) {
-  ...
-}
+transition.toView = function(view,
+    {
+      "allowed": function(data) {
+      },
+      
+      "denied": function() {
+      },
+      
+      "data": function() {
+        return "something useful to the allowed function"
+      }
+    });
 '''
 The parameters to this function do the following:
 * "view" - this is the view being transitioned to it contains a string that is the view name defined in the configuration. In the example above the view names are "home" and "login".
@@ -100,11 +109,16 @@ transition.initConfig({
   }
 });
 ```
-"leaving" and "entering" both are provided with a callback which allows them to deny the transition. This "deny" callback takes a parameter called "context" which is handed to the "denied" callback provided to the 'toView' invocation. Should the "deny" callback not be called then the transition is permitted.
+"leaving" and "entering" both are provided with a callback which allows them to deny the transition.
+This "deny" callback takes a parameter called "context" which is handed to the "denied" callback
+provided to the 'toView' invocation. Should the "deny" callback not be called then the transition
+is permitted.
 
 Knockout.js Version
 -------------------
-At the moment knockout-view-transition is only compatible with Knockout.js 3.0.0, changes to 3.1.0 stop the switching of views from working.
+At the moment knockout-view-transition is only compatible with Knockout.js 3.0.0, changes to 3.1.0
+stop the switching of views from working. 3.2.0 has now been released and that included a new
+modularisation system which knockout-view-transition will adopt.
 
 Backlog
 -------
@@ -112,4 +126,4 @@ There are a bunch of other things I think I'm going to need and I'll build into
 knockout-view-transition. Here's my current list:
 * Allow transitions to more than one view
 * Linear workflows so that just "next" and "previous" are required
-* Support knockout 3.1.0
+* Support knockout 3.2.0 and modify to use new modularisation features
