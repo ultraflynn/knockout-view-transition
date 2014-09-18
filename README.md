@@ -130,6 +130,6 @@ knockout-view-transition. Here's my current list:
 
 History
 -------
-0.1.0 Initial release
-0.2.0 Transition hooks
-0.3.0 Transition data
+* 0.1.0 Initial release
+* 0.2.0 Transition hooks
+* 0.3.0 Transition data
