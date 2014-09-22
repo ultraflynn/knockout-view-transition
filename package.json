@@ -10,7 +10,7 @@
     "knockout.js"
   ],
   "author": "Matt Biggin",
-  "license": "BSD-2-Clause",
+  "license": "MIT",
 
   "repository": {
     "type": "git",
