@@ -252,6 +252,38 @@ describe("transition-spec.js", function() {
     };
   });
 
+  describe("ensure data is passed on transition start", function() {
+    var expectedEnteredData = null, config = {
+      viewOne: {
+        model: modelOne,
+
+        entered: function(data) {
+          expect(data).toBe(expectedEnteredData);
+        }
+      }
+    };
+
+    it("should provide function data when start is called", function() {
+      transition.initConfig(config);
+
+      expectedEnteredData = "transition-data-from-function";
+      transition.start("viewOne", {
+        "data": function() {
+          return "transition-data-from-function";
+        }
+      });
+    });
+
+    it("should provide object data when start is called", function() {
+      transition.initConfig(config);
+
+      expectedEnteredData = "transition-data-from-object";
+      transition.start("viewOne", {
+        "data": "transition-data-from-object"
+      });
+    });
+  });
+
   describe("ensure data is passed on transition to different view", function() {
     var expectedEnteredData = null, config = {
       viewOne: {
