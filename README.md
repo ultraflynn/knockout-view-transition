@@ -53,7 +53,7 @@ So the other most basic requirement is to be able to transition from one view to
 
 View Transitions
 ----------------
-knockout-view-transition provides a method named 'toView' which allows a transition to another view. This function has this signature:
+knockout-view-transition provides a method named 'toView' which allows a transition to another view. This function has the signature:
 '''
 transition.toView = function(view,
     {
@@ -64,7 +64,7 @@ transition.toView = function(view,
       },
       
       "data": function() {
-        return "something useful to the allowed function"
+        return "something useful to the entered hook"
       }
     });
 '''
@@ -72,6 +72,21 @@ The parameters to this function do the following:
 * "view" - this is the view being transitioned to it contains a string that is the view name defined in the configuration. In the example above the view names are "home" and "login".
 * "allowed" - called when both the "leaving" and "entering" transition hooks have allowed the transition.
 * "denied" - called when either the "leaving" or "entering" transition hooks have denied the transition. This function has one parameter named "reason" which is provided by the transition hook that issued the denial.
+
+Passing data to the "entered" transition hook
+---------------------------------------------
+You can pass data to the "entered" hook via both the start() and toView() methods by specifying it as the second parameter. Both simple values and functions are supported and in the case of a function it will be executed and the result passed to the "entered" hook. Here's some examples:
+```
+transition.start("view-name", {
+  "data": "a-useful-value"
+})
+
+transition.toView("view-name", {
+  "data": function() {
+    return "another-useful-value";
+  }
+});
+```
 
 Transition Hooks
 ----------------
@@ -134,3 +149,4 @@ History
 * 0.2.0 Transition hooks
 * 0.3.0 Transition data
 * 0.3.1 Move data publication from allowed hook to entered hook
+* 0.3.2 Allow data to be passed to the start function

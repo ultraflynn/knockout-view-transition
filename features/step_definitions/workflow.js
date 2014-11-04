@@ -3,8 +3,8 @@ var ko = new Knockout();
 var Transition = require("../../lib/transition");
 
 var workflow = function workflow() {
-  var config, activeModel, calls, allowCallCount, denyCallCount, lastDenyReason, lastEnteredData,
-      transition;
+  var config, activeModel, calls, allowCallCount, denyCallCount, lastDenyReason,
+    lastEnteredData, transition;
 
   var reset = function() {
     config = {};
@@ -45,6 +45,11 @@ var workflow = function workflow() {
 
       "left-notification": function() {
         calls.push("left");
+      },
+
+      "entered-notification": function(data) {
+        calls.push("entered");
+        lastEnteredData = data;
       }
     },
 
@@ -93,9 +98,19 @@ var workflow = function workflow() {
     cb();
   });
 
-  this.When(/^transition is started using "(.*)" as the starting view/, function(view, cb) {
+  this.When(/^transition is started using "(.*)" as the starting view$/, function(view, cb) {
     transition.initConfig(config);
     transition.start(view);
+    cb();
+  });
+
+  this.When(/^transition is started using "(.*)" as the starting view passing "([^"]*)"$/, function(view, data, cb) {
+    transition.initConfig(config);
+    transition.start(view, {
+      "data": function() {
+        return data;
+      }
+    });
     cb();
   });
 
